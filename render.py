@@ -73,40 +73,42 @@ def render_dashboard(
     draw = ImageDraw.Draw(img)
 
     # --- Header: centered serif brand line ---
-    f_brand = _font(FONT_SERIF, 46)
-    draw.text((_center_x(draw, HEADER_TEXT, f_brand, 0, WIDTH), 46), HEADER_TEXT, font=f_brand, fill=0)
+    f_brand = _font(FONT_SERIF, 88)
+    draw.text((_center_x(draw, HEADER_TEXT, f_brand, 0, WIDTH), 28), HEADER_TEXT, font=f_brand, fill=0)
 
-    top = 150
+    top = 206
     left_x = MARGIN
     left_w = DIVIDER_X - MARGIN - 40
 
     # --- Left column: month label, big number, caption, today-pill ---
-    f_label = _font(FONT_SERIF, 32)
+    f_label = _font(FONT_SERIF, 60)
     label = month_label
 
-    f_number = _font(FONT_NUMERAL, 210)
+    # Big numeral and the right-column project breakdown are intentionally
+    # left at their existing size while everything else around them grows.
+    f_number = _font(FONT_NUMERAL, 230)
     number_text = f"{total_stitches:,}"
-    while _text_w(draw, number_text, f_number)[0] > left_w and f_number.size > 100:
+    while _text_w(draw, number_text, f_number)[0] > left_w and f_number.size > 120:
         f_number = _font(FONT_NUMERAL, f_number.size - 10)
 
-    f_caption = _font(FONT_SERIF, 36)
+    f_caption = _font(FONT_SERIF, 66)
     caption = "stitches this month"
 
-    f_pill = _font(FONT_NUMERAL, 28)
+    f_pill = _font(FONT_NUMERAL, 52)
     pill_text = f"+{today_count:,} today" if today_count is not None else None
 
     y = top
     draw.text((left_x, y), label, font=f_label, fill=0)
-    y += 44 + 16
+    y += 82 + 26
 
     draw.text((left_x, y), number_text, font=f_number, fill=0)
-    y += f_number.size + 4 + 16
+    y += f_number.size + 4 + 26
 
     draw.text((left_x, y), caption, font=f_caption, fill=0)
-    y += 48 + 22
+    y += 88 + 36
 
     if pill_text:
-        pad_x, pad_y = 20, 12
+        pad_x, pad_y = 36, 23
         bbox = draw.textbbox((0, 0), pill_text, font=f_pill)
         box_w = (bbox[2] - bbox[0]) + 2 * pad_x
         box_h = (bbox[3] - bbox[1]) + 2 * pad_y
@@ -120,16 +122,16 @@ def render_dashboard(
     # --- Right column: per-project breakdown ---
     right_w = RIGHT_X1 - RIGHT_X0
     if projects:
-        f_head = _font(FONT_SERIF, 26)
+        f_head = _font(FONT_SERIF, 32)
         head = "By project"
         head_y = top + 4
         draw.text((RIGHT_X0, head_y), head, font=f_head, fill=0)
 
-        f_proj_name = _font(FONT_SERIF, 32)
-        f_proj_count = _font(FONT_NUMERAL, 30)
-        row_y = head_y + 50
-        row_h = 54
-        max_name_w = right_w - 140  # leave room for the count on the right
+        f_proj_name = _font(FONT_SERIF, 38)
+        f_proj_count = _font(FONT_NUMERAL, 36)
+        row_y = head_y + 60
+        row_h = 64
+        max_name_w = right_w - 165  # leave room for the count on the right
         for name, count in projects:
             display_name = name
             while _text_w(draw, display_name, f_proj_name)[0] > max_name_w and len(display_name) > 1:
@@ -147,10 +149,9 @@ def render_dashboard(
                 break
 
     # --- Footer: full-width rule, then annual total + updated stamp centered ---
-    footer_rule_y = HEIGHT - MARGIN - 46
+    footer_rule_y = HEIGHT - MARGIN - 74
     draw.line([(MARGIN, footer_rule_y), (WIDTH - MARGIN, footer_rule_y)], fill=0, width=2)
 
-    f_footer = _font(FONT_SERIF, 30)
     if year_total is not None:
         footer = (
             f"{year_total:,} stitches this year   ·   "
@@ -158,8 +159,16 @@ def render_dashboard(
         )
     else:
         footer = f"updated {updated_at.strftime('%b %d, %Y %-I:%M %p')}"
+
+    # Shrink-to-fit: this line's length varies with the date/numbers, so
+    # keep it from ever running past the margins on a long day.
+    footer_max_w = WIDTH - 2 * MARGIN
+    f_footer = _font(FONT_SERIF, 54)
+    while _text_w(draw, footer, f_footer)[0] > footer_max_w and f_footer.size > 30:
+        f_footer = _font(FONT_SERIF, f_footer.size - 2)
+
     draw.text(
-        (_center_x(draw, footer, f_footer, 0, WIDTH), HEIGHT - MARGIN - 34), footer, font=f_footer, fill=0
+        (_center_x(draw, footer, f_footer, 0, WIDTH), HEIGHT - MARGIN - 56), footer, font=f_footer, fill=0
     )
 
     img.save(out_path)
