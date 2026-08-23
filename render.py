@@ -33,7 +33,7 @@ DIVIDER_X = 860
 RIGHT_X0 = DIVIDER_X + 56
 RIGHT_X1 = WIDTH - MARGIN
 
-HEADER_TEXT = "mostlycrafty's stitches"
+HEADER_TEXT = "laura's stitches"
 
 
 def _font(path, size):
