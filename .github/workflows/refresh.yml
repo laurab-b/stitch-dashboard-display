@@ -10,6 +10,13 @@ on:
 permissions:
   contents: write
 
+# Only one refresh runs at a time; if you trigger a new one while an older
+# one is still going, the older one gets cancelled instead of the two
+# racing to push and one of them failing.
+concurrency:
+  group: refresh-dashboard
+  cancel-in-progress: true
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -42,4 +49,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add dash.png
           git diff --cached --quiet && echo "no change" || git commit -m "refresh dashboard"
+          git pull --rebase origin main
           git push
