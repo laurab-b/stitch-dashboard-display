@@ -4,7 +4,7 @@ on:
   schedule:
     # Once a day at 13:00 UTC. Monthly totals don't need more than this —
     # tighten it later if you want same-day updates after a stitching session.
-    - cron: "0 13 * * *"
+    - cron: "0 * * * *"
   workflow_dispatch: {}  # lets you trigger a manual refresh from the Actions tab
 
 permissions:
