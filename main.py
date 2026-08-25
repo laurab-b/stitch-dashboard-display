@@ -12,15 +12,20 @@ Usage:
 import os
 import sys
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-from render import render_dashboard
+from render import render_dashboard, LOCAL_TZ
 from notion_source import resolve_data_source_id, fetch_stats
 
 OUT_PATH = os.environ.get("DASH_OUT_PATH", "dash.png")
 
 
 def main():
-    now = datetime.now()
+    # Same reasoning as in render.py: the machine running this (a GitHub
+    # Actions runner) has its clock set to UTC, not LB's local time, so
+    # convert before doing anything with "now" — including which
+    # calendar day counts as "today" for the Notion lookup below.
+    now = datetime.now(ZoneInfo("UTC")).astimezone(LOCAL_TZ)
     month_label = now.strftime("%B %Y")
 
     if "--demo" in sys.argv:
